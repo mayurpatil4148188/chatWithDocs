@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chat With Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+          <div class="brand">
+            <span class="brand-mark">C</span>
+            <span>Chat With Docs</span>
+          </div>
+          <button id="new-chat" class="new-chat" type="button" disabled>New chat</button>
+        </div>
+
+        <div class="sidebar-scroll">
+          <div class="sidebar-section">
+            <div class="section-row">
+              <h2>Documents</h2>
+              <label class="ghost-link">
+                Upload
+                <input id="file-input" type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+              </label>
+            </div>
+            <div id="documents" class="nav-list"><div class="empty">No documents yet</div></div>
+          </div>
+          <div class="sidebar-section">
+            <div class="section-row"><h2 id="chats-heading">Chats</h2><button id="archived-toggle" class="ghost-link" type="button">Archived</button></div>
+            <div id="chat-list" class="nav-list"><div class="empty">Select a document</div></div>
+          </div>
+        </div>
+
+        <div class="sidebar-bottom">
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to light mode">
+            <span id="theme-icon">☼</span>
+            <span id="theme-label">Light mode</span>
+          </button>
+        </div>
+      </aside>
+
+      <section class="main">
+        <header class="main-header">
+          <button id="sidebar-toggle" class="icon-button" type="button" aria-label="Toggle sidebar">☰</button>
+          <div class="header-copy">
+            <h1 id="chat-title">No document selected</h1>
+            <p id="chat-scope" class="header-scope">Choose a document in the sidebar to start a chat.</p>
+          </div>
+        </header>
+        <div id="messages" class="messages"></div>
+        <div class="composer-wrap">
+          <div id="attached-doc" class="attached-doc is-empty">
+            <span class="attached-kind">FILE</span>
+            <div>
+              <strong id="attached-name">No document in this chat</strong>
+              <span id="attached-status">Select a file from Documents</span>
+            </div>
+          </div>
+          <form id="chat-form" class="composer">
+            <textarea id="question" rows="1" placeholder="Select a document first" disabled></textarea>
+            <button class="send" type="submit" aria-label="Send" disabled>↑</button>
+          </form>
+          <p id="composer-hint" class="composer-hint">This chat answers only from the selected document.</p>
+        </div>
+      </section>
+    </div>
+
+    <template id="document-template">
+      <div class="nav-item document-item">
+        <button class="document-open" type="button"><span class="nav-title document-name"></span><span class="nav-meta document-status"></span><span class="progress-track hidden"><span></span></span></button>
+        <button class="delete-document" type="button" title="Delete document" aria-label="Delete document">×</button>
+      </div>
+    </template>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

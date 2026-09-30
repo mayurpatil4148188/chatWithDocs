@@ -1,0 +1,90 @@
+openapi: 3.1.0
+info:
+  title: Chat With Docs API
+  version: 0.1.0
+  description: Local-first document ingestion and page-aware RAG API.
+servers:
+  - url: http://localhost:3000
+paths:
+  /health:
+    get:
+      responses:
+        '200': { description: Service is healthy }
+  /v1/documents:
+    get:
+      summary: List documents
+      responses:
+        '200': { description: Documents }
+    post:
+      summary: Upload a PDF or DOCX and enqueue processing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [filename, mimeType, contentBase64]
+              properties:
+                filename: { type: string }
+                mimeType: { type: string, enum: [application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document] }
+                contentBase64: { type: string, format: byte }
+      responses:
+        '202': { description: Processing job accepted }
+  /v1/jobs/{jobId}:
+    get:
+      summary: Get processing progress
+      parameters:
+        - { name: jobId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Job and step statuses }
+  /v1/documents/{documentId}/search:
+    get:
+      summary: Search ready document chunks
+      parameters:
+        - { name: documentId, in: path, required: true, schema: { type: string } }
+        - { name: q, in: query, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Page-aware retrieved chunks }
+  /v1/documents/{documentId}/chat:
+    post:
+      summary: Ask a grounded question about one ready document
+      parameters:
+        - { name: documentId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question]
+              properties:
+                question: { type: string }
+      responses:
+        '200': { description: Grounded answer with validated citations }
+        '409': { description: Document is not ready }
+  /v1/documents/{documentId}:
+    delete:
+      summary: Delete a document and its indexed content
+      parameters:
+        - { name: documentId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Document deleted }
+        '404': { description: Document not found }
+  /v1/documents/{documentId}/conversations/{conversationId}:
+    patch:
+      summary: Archive or restore a document chat
+      parameters:
+        - { name: documentId, in: path, required: true, schema: { type: string } }
+        - { name: conversationId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [archived]
+              properties:
+                archived: { type: boolean }
+      responses:
+        '200': { description: Updated chat }
+        '404': { description: Chat not found }

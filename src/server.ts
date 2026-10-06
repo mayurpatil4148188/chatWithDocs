@@ -161,6 +161,14 @@ const server = http.createServer(async (req, res) => {
       const rows = retrieveEvidence(searchMatch[1], query);
       return send(res, 200, { data: rows });
     }
+    const chunkMatch = url.pathname.match(/^\/v1\/documents\/([^/]+)\/chunks\/([^/]+)$/);
+    if (req.method === 'GET' && chunkMatch) {
+      const chunk = db.prepare(`SELECT c.id chunkId, c.page_no pageNo, c.text
+        FROM document_chunks c JOIN document_versions v ON v.id=c.document_version_id
+        WHERE v.document_id=? AND c.id=?`).get(chunkMatch[1], chunkMatch[2]);
+      if (!chunk) return send(res, 404, { error: 'Citation evidence not found' });
+      return send(res, 200, chunk);
+    }
     const conversationsMatch = url.pathname.match(/^\/v1\/documents\/([^/]+)\/conversations$/);
     if (req.method === 'GET' && conversationsMatch) {
       const document = db.prepare('SELECT id FROM documents WHERE id=?').get(conversationsMatch[1]);

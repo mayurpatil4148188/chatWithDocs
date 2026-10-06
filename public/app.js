@@ -190,11 +190,39 @@ function renderChat() {
   const messages = activeChat()?.messages ?? [];
   const typing = state.typingChatId === state.activeChat;
   $('#messages').innerHTML = messages.length || typing
-    ? `<div class="thread">${messages.map((message) => `<div class="message ${message.role}"><div class="bubble">${formatText(message.text)}${message.citations?.length ? `<div class="citations">${[...new Set(message.citations.map((citation) => citation.label))].map((label) => `<span class="citation">${escapeHtml(label)}</span>`).join('')}</div>` : ''}</div></div>`).join('')}${typing ? '<div class="message assistant"><div class="bubble typing-bubble"><span class="typing-indicator" aria-label="Assistant is thinking"><i></i><i></i><i></i></span></div></div>' : ''}</div>`
+    ? `<div class="thread">${messages.map((message) => `<div class="message ${message.role}"><div class="bubble">${formatText(message.text)}${message.citations?.length ? `<div class="citations">${message.citations.map((citation) => `<button class="citation" type="button" data-chunk-id="${escapeHtml(citation.chunkId)}" data-label="${escapeHtml(citation.label)}">${escapeHtml(citation.label)}</button>`).join('')}</div>` : ''}</div></div>`).join('')}${typing ? '<div class="message assistant"><div class="bubble typing-bubble"><span class="typing-indicator" aria-label="Assistant is thinking"><i></i><i></i><i></i></span></div></div>' : ''}</div>`
     : welcomeHtml();
   bindPrompts();
+  bindCitations();
   $('#messages').scrollTop = $('#messages').scrollHeight;
 }
+
+function bindCitations() {
+  for (const button of document.querySelectorAll('.citation')) {
+    button.onclick = () => showCitation(button.dataset.chunkId, button.dataset.label);
+  }
+}
+
+async function showCitation(chunkId, label) {
+  const modal = $('#citation-modal');
+  $('#citation-title').textContent = label || 'Source evidence';
+  $('#citation-page').textContent = 'Loading source evidence…';
+  $('#citation-text').textContent = '';
+  modal.classList.remove('hidden');
+  try {
+    const evidence = await api(`/v1/documents/${state.selected.id}/chunks/${encodeURIComponent(chunkId)}`);
+    $('#citation-page').textContent = `Page ${evidence.pageNo}`;
+    $('#citation-text').textContent = evidence.text;
+  } catch (error) {
+    $('#citation-page').textContent = 'Unable to load source evidence.';
+    $('#citation-text').textContent = error.message;
+  }
+}
+
+function closeCitation() { $('#citation-modal').classList.add('hidden'); }
+$('#citation-close').onclick = closeCitation;
+$('#citation-modal').onclick = (event) => { if (event.target === $('#citation-modal')) closeCitation(); };
+document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeCitation(); });
 
 function bindPrompts() {
   for (const chip of document.querySelectorAll('.chip')) {

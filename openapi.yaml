@@ -103,6 +103,19 @@ paths:
                 properties:
                   data: { type: array, items: { $ref: '#/components/schemas/Evidence' } }
         '400': { $ref: '#/components/responses/Error' }
+  /v1/documents/{documentId}/chunks/{chunkId}:
+    get:
+      summary: Retrieve cited source evidence
+      parameters:
+        - { name: documentId, in: path, required: true, schema: { type: string } }
+        - { name: chunkId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Stored source chunk
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Evidence' }
+        '404': { $ref: '#/components/responses/Error' }
   /v1/documents/{documentId}/conversations:
     get:
       summary: List conversations for a document

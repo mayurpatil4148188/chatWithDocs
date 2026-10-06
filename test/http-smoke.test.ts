@@ -14,11 +14,11 @@ function crc32(input: Buffer) {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
-function syntheticDocx() {
+function syntheticDocx(label = 'Chat With Docs integration test document.') {
   const files = [
     ['[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>'],
     ['_rels/.rels', '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>'],
-    ['word/document.xml', '<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Chat With Docs integration test document. This fixture contains enough text for retrieval.</w:t></w:r></w:p></w:body></w:document>']
+    ['word/document.xml', `<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>${label} This fixture contains enough text for retrieval.</w:t></w:r></w:p></w:body></w:document>`]
   ].map(([name, content]) => ({ name, data: Buffer.from(content) }));
   const local: Buffer[] = [];
   const central: Buffer[] = [];
@@ -109,6 +109,21 @@ test('HTTP smoke test covers upload, processing, search, chat, and deletion', as
     assert.match(config.privacyMessage, /not sent to an external/i);
     assert.equal(config.LLM_API_KEY, undefined);
 
+    const concurrentResponses = await Promise.all([1, 2].map((index) => fetch(`${baseUrl}/v1/documents`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ filename: `concurrent-${index}.docx`, mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', contentBase64: syntheticDocx(`Concurrent fixture ${index}`).toString('base64') })
+    })));
+    assert.deepEqual(concurrentResponses.map((response) => response.status), [202, 202], await Promise.all(concurrentResponses.map((response) => response.clone().text())));
+    const concurrentUploads = await Promise.all(concurrentResponses.map((response) => response.json() as Promise<{ documentId: string; jobId: string }>));
+    assert.notEqual(concurrentUploads[0].documentId, concurrentUploads[1].documentId);
+    await Promise.all(concurrentUploads.map(async (upload) => {
+      const job = await waitFor(`${baseUrl}/v1/jobs/${upload.jobId}`, (value) => value.job?.status === 'complete' || value.job?.status === 'failed');
+      assert.equal(job.job.status, 'complete', job.job.error ?? 'concurrent processing failed');
+      const deleted = await fetch(`${baseUrl}/v1/documents/${upload.documentId}`, { method: 'DELETE' });
+      assert.equal(deleted.status, 200);
+    }));
+
     const malformedJson = await fetch(`${baseUrl}/v1/documents`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -140,6 +155,11 @@ test('HTTP smoke test covers upload, processing, search, chat, and deletion', as
     const search = await searchResponse.json() as { data: Array<{ pageNo: number; text: string }> };
     assert.equal(search.data[0]?.pageNo, 1);
     assert.match(search.data[0]?.text ?? '', /integration test/i);
+    const evidenceResponse = await fetch(`${baseUrl}/v1/documents/${uploaded.documentId}/chunks/${encodeURIComponent(search.data[0].chunkId)}`);
+    assert.equal(evidenceResponse.status, 200);
+    const evidence = await evidenceResponse.json() as { pageNo: number; text: string };
+    assert.equal(evidence.pageNo, 1);
+    assert.match(evidence.text, /integration test/i);
 
     const chatResponse = await fetch(`${baseUrl}/v1/documents/${uploaded.documentId}/chat`, {
       method: 'POST',

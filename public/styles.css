@@ -125,6 +125,13 @@ h1, h2, p { margin: 0; }
   font-size: 11px;
 }
 .privacy-notice.external { color: var(--soft); border-color: #8f7650; }
+.modal { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 20px; background: rgba(0,0,0,.62); }
+.modal.hidden { display: none; }
+.modal-card { width: min(680px, 100%); max-height: min(620px, 90vh); overflow: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--sidebar); padding: 18px; box-shadow: 0 24px 80px rgba(0,0,0,.35); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.modal-header h2 { font-size: 16px; font-weight: 600; }
+.modal-meta { color: var(--muted); font-size: 12px; margin-top: 14px; }
+.citation-text { white-space: pre-wrap; line-height: 1.65; font-size: 14px; margin-top: 8px; }
 
 .messages { flex: 1; overflow: auto; padding: 28px 16px 12px; }
 .thread { width: min(720px, 100%); margin: 0 auto; display: grid; gap: 28px; padding-bottom: 8px; }
@@ -154,12 +161,15 @@ h1, h2, p { margin: 0; }
 @keyframes typing-pulse { 0%, 60%, 100% { transform: translateY(0); opacity: .35; } 30% { transform: translateY(-4px); opacity: 1; } }
 .citations { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .citation {
+  background: transparent;
   color: var(--muted);
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 3px 8px;
   font-size: 11px;
+  cursor: pointer;
 }
+.citation:hover, .citation:focus-visible { color: var(--text); background: var(--hover); outline: none; }
 
 .welcome { width: min(720px, 100%); margin: 14vh auto 0; text-align: center; }
 .welcome h2 { font-size: 28px; font-weight: 600; letter-spacing: -.03em; }

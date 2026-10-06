@@ -105,6 +105,16 @@ const server = http.createServer(async (req, res) => {
       }
     }
     if (req.method === 'GET' && url.pathname === '/health') return send(res, 200, { ok: true });
+    if (req.method === 'GET' && url.pathname === '/v1/config') {
+      const provider = process.env.LLM_PROVIDER ?? 'mock';
+      return send(res, 200, {
+        provider,
+        externalProvider: provider !== 'mock',
+        privacyMessage: provider === 'mock'
+          ? 'Mock answers run locally; document content is not sent to an external model provider.'
+          : `Answers use the configured ${provider} provider; selected document content may be sent to that provider.`
+      });
+    }
     if (req.method === 'GET' && ['/', '/app.js', '/styles.css'].includes(url.pathname)) {
       const filename = url.pathname === '/' ? 'index.html' : url.pathname.slice(1);
       const filePath = path.join(publicDir, filename);

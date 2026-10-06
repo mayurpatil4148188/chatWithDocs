@@ -115,6 +115,16 @@ h1, h2, p { margin: 0; }
 .header-scope { color: var(--muted); font-size: 12px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .icon-button { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; }
 .icon-button:hover { background: var(--hover); }
+.privacy-notice {
+  margin: 10px auto 0;
+  width: min(768px, calc(100% - 32px));
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.privacy-notice.external { color: var(--soft); border-color: #8f7650; }
 
 .messages { flex: 1; overflow: auto; padding: 28px 16px 12px; }
 .thread { width: min(720px, 100%); margin: 0 auto; display: grid; gap: 28px; padding-bottom: 8px; }

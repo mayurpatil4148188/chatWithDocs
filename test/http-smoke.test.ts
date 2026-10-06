@@ -101,6 +101,14 @@ test('HTTP smoke test covers upload, processing, search, chat, and deletion', as
 
   try {
     await waitFor(`${baseUrl}/health`, (value) => value.ok === true);
+    const configResponse = await fetch(`${baseUrl}/v1/config`);
+    assert.equal(configResponse.status, 200);
+    const config = await configResponse.json() as { provider: string; externalProvider: boolean; privacyMessage: string; LLM_API_KEY?: string };
+    assert.equal(config.provider, 'mock');
+    assert.equal(config.externalProvider, false);
+    assert.match(config.privacyMessage, /not sent to an external/i);
+    assert.equal(config.LLM_API_KEY, undefined);
+
     const malformedJson = await fetch(`${baseUrl}/v1/documents`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },

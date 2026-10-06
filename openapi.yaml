@@ -53,6 +53,22 @@ paths:
         '400': { $ref: '#/components/responses/Error' }
         '413': { $ref: '#/components/responses/Error' }
         '415': { $ref: '#/components/responses/Error' }
+  /v1/config:
+    get:
+      summary: Get safe provider and privacy configuration
+      description: Returns provider metadata only; credentials are never returned.
+      responses:
+        '200':
+          description: Provider metadata and privacy notice
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [provider, externalProvider, privacyMessage]
+                properties:
+                  provider: { type: string }
+                  externalProvider: { type: boolean }
+                  privacyMessage: { type: string }
   /v1/jobs/{jobId}:
     get:
       summary: Get processing progress

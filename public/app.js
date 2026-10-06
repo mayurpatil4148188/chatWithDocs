@@ -1,4 +1,4 @@
-const state = { documents: [], selected: null, chats: new Map(), activeChat: null, docStamp: '', typingChatId: null, showArchived: false };
+const state = { documents: [], selected: null, chats: new Map(), activeChat: null, docStamp: '', typingChatId: null, showArchived: false, config: null };
 const $ = (selector) => document.querySelector(selector);
 const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
 function formatText(value) {
@@ -8,6 +8,20 @@ function formatText(value) {
     .replace(/^\s*[-•]\s+(.+)$/gm, '<span class="bullet">$1</span>');
 }
 const PROMPTS = ['What is this document?', 'Summarize the key points', 'List the most important details'];
+
+function renderPrivacyNotice() {
+  const notice = $('#privacy-notice');
+  if (!state.config) return;
+  notice.textContent = state.config.privacyMessage;
+  notice.classList.toggle('external', state.config.externalProvider);
+}
+
+async function loadConfig() {
+  try {
+    state.config = await api('/v1/config');
+    renderPrivacyNotice();
+  } catch (error) { console.error(error); }
+}
 
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
@@ -330,4 +344,5 @@ $('#chat-form').onsubmit = async (event) => {
 };
 
 refresh();
+loadConfig();
 setInterval(refresh, 2500);

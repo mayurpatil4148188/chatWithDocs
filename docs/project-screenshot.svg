@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+  <title id="title">Chat With Docs application preview</title>
+  <desc id="desc">Dark document chat interface with a resume selected, cited answers, and a question composer.</desc>
+  <rect width="1440" height="900" fill="#212121"/>
+  <rect width="260" height="900" fill="#171717"/>
+  <path d="M259 0h1v900h-1zM260 63h1180v1H260zM0 802h260v1H0z" fill="#2f2f2f"/>
+
+  <g font-family="Inter, Arial, sans-serif" fill="#ececec">
+    <rect x="16" y="18" width="22" height="22" rx="6" fill="#ececec"/>
+    <text x="23" y="34" font-size="12" font-weight="700" fill="#212121">C</text>
+    <text x="48" y="34" font-size="14" font-weight="600">Chat With Docs</text>
+    <rect x="12" y="52" width="236" height="38" rx="10" fill="none" stroke="#2f2f2f"/>
+    <text x="25" y="76" font-size="14">New chat</text>
+
+    <text x="20" y="126" font-size="11" font-weight="600" letter-spacing=".5" fill="#8f8f8f">DOCUMENTS</text>
+    <text x="216" y="126" font-size="12" fill="#8f8f8f">Upload</text>
+    <rect x="8" y="138" width="244" height="52" rx="8" fill="#212121"/>
+    <rect x="8" y="138" width="2" height="52" fill="#ececec"/>
+    <text x="20" y="158" font-size="13">Mayur Patil - Resume.pdf</text>
+    <text x="20" y="178" font-size="11" fill="#8f8f8f">Ready · in this chat</text>
+
+    <text x="20" y="226" font-size="11" font-weight="600" letter-spacing=".5" fill="#8f8f8f">CHATS IN MAYUR PATIL - RESUME.PDF</text>
+    <rect x="8" y="238" width="244" height="54" rx="8" fill="#212121"/>
+    <text x="20" y="258" font-size="13">What is this document?</text>
+    <text x="20" y="278" font-size="11" fill="#8f8f8f">4 messages</text>
+    <text x="20" y="316" font-size="13" fill="#8f8f8f">is this good candidate as full stack ?</text>
+    <text x="20" y="336" font-size="11" fill="#8f8f8f">4 messages</text>
+
+    <rect x="0" y="802" width="260" height="98" fill="#171717"/>
+    <text x="20" y="852" font-size="13" fill="#8f8f8f">○</text>
+    <text x="44" y="852" font-size="13" fill="#8f8f8f">Light mode</text>
+
+    <text x="278" y="39" font-size="20" fill="#8f8f8f">☰</text>
+    <text x="320" y="32" font-size="15" font-weight="600">Chatting with Mayur Patil - Resume.pdf</text>
+    <text x="320" y="51" font-size="12" fill="#8f8f8f">This conversation uses only the selected document.</text>
+
+    <g transform="translate(480 115)">
+      <rect x="630" y="0" width="300" height="48" rx="22" fill="#3a3a3a"/>
+      <text x="652" y="30" font-size="15">is this good candidate as full stack ?</text>
+      <text x="0" y="98" font-size="15">Yes. Based on the supplied evidence, Mayur Patil appears to be</text>
+      <text x="0" y="123" font-size="15">a strong full-stack candidate.</text>
+      <text x="0" y="166" font-size="15">The document lists him as a “FULL STACK &amp; AI ENGINEER” with</text>
+      <text x="0" y="191" font-size="15">over 7 years of full-stack expertise. His key competencies include:</text>
+      <text x="14" y="234" font-size="15" fill="#d9d9d9">• Frontend: React, React Native, Vue.js, Next.js, Angular</text>
+      <text x="14" y="262" font-size="15" fill="#d9d9d9">• Backend: Python, Django, Laravel, PHP, Node.js, Java</text>
+      <text x="14" y="290" font-size="15" fill="#d9d9d9">• Databases &amp; Cloud: MySQL, DynamoDB, AWS Services</text>
+      <text x="14" y="318" font-size="15" fill="#d9d9d9">• AI/LLM: RAG, LangChain, AI Agents, Vector Databases</text>
+      <text x="0" y="366" font-size="15">The evidence supports a strong fit for a modern full-stack role</text>
+      <text x="0" y="391" font-size="15">with AI and LLM integration.</text>
+      <rect x="0" y="424" width="68" height="25" rx="13" fill="none" stroke="#2f2f2f"/>
+      <rect x="76" y="424" width="68" height="25" rx="13" fill="none" stroke="#2f2f2f"/>
+      <text x="15" y="441" font-size="11" fill="#8f8f8f">Page 2</text>
+      <text x="91" y="441" font-size="11" fill="#8f8f8f">Page 3</text>
+    </g>
+
+    <g transform="translate(500 770)">
+      <rect width="768" height="54" rx="16" fill="#171717" stroke="#2f2f2f"/>
+      <rect x="12" y="11" width="44" height="32" rx="8" fill="none" stroke="#2f2f2f"/>
+      <text x="20" y="31" font-size="10" font-weight="700">PDF</text>
+      <text x="70" y="25" font-size="13" font-weight="600">Mayur Patil - Resume.pdf</text>
+      <text x="70" y="42" font-size="12" fill="#8f8f8f">Selected for this chat</text>
+      <rect y="64" width="768" height="58" rx="28" fill="#303030" stroke="#2f2f2f"/>
+      <text x="18" y="99" font-size="14" fill="#8f8f8f">Ask anything about Mayur Patil - Resume.pdf</text>
+      <circle cx="734" cy="93" r="16" fill="#ececec"/>
+      <text x="729" y="99" font-size="18" fill="#0d0d0d">↑</text>
+      <text x="220" y="146" font-size="11" fill="#8f8f8f">Answers come only from Mayur Patil - Resume.pdf.</text>
+    </g>
+  </g>
+</svg>

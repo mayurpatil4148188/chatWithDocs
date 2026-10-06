@@ -2,6 +2,12 @@
 
 Local-first, citation-grounded document RAG built around a fixed JCode workflow.
 
+## Project preview
+
+![Chat With Docs application preview](./docs/project-screenshot.svg)
+
+The interface keeps documents and conversations in the sidebar while answers stay grounded in the selected file and expose page citations.
+
 ## Current vertical slice
 
 `PDF/DOCX upload -> background processing -> page/chunk extraction -> SQLite FTS5 -> ready-only one-document chat`

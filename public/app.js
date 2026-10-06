@@ -118,6 +118,7 @@ function renderDocuments() {
     const item = node.querySelector('.document-item');
     const openButton = node.querySelector('.document-open');
     const deleteButton = node.querySelector('.delete-document');
+    const retryButton = node.querySelector('.retry-document');
     item.classList.toggle('selected', state.selected?.id === document.id);
     node.querySelector('.document-name').textContent = document.title;
     node.querySelector('.document-status').textContent = state.selected?.id === document.id
@@ -130,8 +131,17 @@ function renderDocuments() {
     }
     openButton.onclick = () => selectDocument(document);
     deleteButton.onclick = () => deleteDocument(document);
+    retryButton.classList.toggle('hidden', document.status !== 'failed');
+    retryButton.onclick = () => retryDocument(document);
     root.append(node);
   }
+}
+
+async function retryDocument(document) {
+  try {
+    await api(`/v1/documents/${document.id}/retry`, { method: 'POST' });
+    await refresh();
+  } catch (error) { alert(error.message); }
 }
 
 function renderChat() {

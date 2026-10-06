@@ -1,0 +1,8 @@
+node_modules
+npm-debug.log
+.env
+data
+.git
+.github
+docs/project-screenshot.svg
+test-results

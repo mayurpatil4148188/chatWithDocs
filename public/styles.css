@@ -230,8 +230,10 @@ h1, h2, p { margin: 0; }
 .document-item { position: relative; display: flex; align-items: center; gap: 4px; padding: 3px; }
 .document-open, .chat-open { min-width: 0; flex: 1; display: grid; gap: 2px; text-align: left; border: 0; background: transparent; color: inherit; cursor: pointer; border-radius: 6px; padding: 5px; }
 .document-open:hover, .chat-open:hover { background: var(--hover); }
-.delete-document, .chat-action { flex: 0 0 auto; border: 0; background: transparent; color: var(--muted); cursor: pointer; opacity: 0; border-radius: 5px; width: 24px; height: 24px; }
-.document-item:hover .delete-document, .chat-item:hover .chat-action, .delete-document:focus, .chat-action:focus { opacity: 1; }
+.document-actions { display: flex; align-items: center; }
+.retry-document, .delete-document, .chat-action { flex: 0 0 auto; border: 0; background: transparent; color: var(--muted); cursor: pointer; opacity: 0; border-radius: 5px; width: 24px; height: 24px; }
+.document-item:hover .retry-document, .document-item:hover .delete-document, .chat-item:hover .chat-action, .retry-document:focus, .delete-document:focus, .chat-action:focus { opacity: 1; }
+.retry-document:hover { color: var(--text); background: var(--hover); }
 .delete-document:hover { color: #ef8c8c; background: color-mix(in srgb, #ef8c8c 12%, transparent); }
 .chat-item { display: flex; align-items: center; gap: 3px; padding: 3px; }
 .chat-actions { display: flex; align-items: center; }

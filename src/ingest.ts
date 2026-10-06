@@ -5,6 +5,7 @@ import pdf from 'pdf-parse';
 import mammoth from 'mammoth';
 import { db } from './db.js';
 import { now } from './queue.js';
+import { assertExtractionLimits } from './extraction-limits.js';
 
 type Page = { pageNo: number; text: string; ocrUsed: boolean };
 
@@ -31,6 +32,11 @@ export async function processJob(job: any) {
   const setStep = db.prepare(`UPDATE processing_steps SET status=?, progress=?, error=?, updated_at=? WHERE job_id=? AND step=?`);
   const setCurrent = db.prepare(`UPDATE processing_jobs SET current_step=?, updated_at=? WHERE id=?`);
   const pages = await extract(version.storage_path, version.mime_type);
+  assertExtractionLimits(
+    pages,
+    Number(process.env.MAX_DOCUMENT_PAGES ?? 100),
+    Number(process.env.MAX_EXTRACTED_TEXT_BYTES ?? 10 * 1024 * 1024)
+  );
   setCurrent.run('extract', now(), job.id);
   setStep.run('complete', 1, null, now(), job.id, 'extract');
 

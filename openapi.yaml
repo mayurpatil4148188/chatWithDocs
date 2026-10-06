@@ -9,12 +9,28 @@ paths:
   /health:
     get:
       responses:
-        '200': { description: Service is healthy }
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok: { type: boolean, const: true }
   /v1/documents:
     get:
       summary: List documents
       responses:
-        '200': { description: Documents }
+        '200':
+          description: Documents ordered newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Document' } }
     post:
       summary: Upload a PDF or DOCX and enqueue processing
       requestBody:
@@ -29,14 +45,31 @@ paths:
                 mimeType: { type: string, enum: [application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document] }
                 contentBase64: { type: string, format: byte }
       responses:
-        '202': { description: Processing job accepted }
+        '202':
+          description: Processing job accepted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UploadAccepted' }
+        '400': { $ref: '#/components/responses/Error' }
+        '413': { $ref: '#/components/responses/Error' }
+        '415': { $ref: '#/components/responses/Error' }
   /v1/jobs/{jobId}:
     get:
       summary: Get processing progress
       parameters:
         - { name: jobId, in: path, required: true, schema: { type: string } }
       responses:
-        '200': { description: Job and step statuses }
+        '200':
+          description: Job and step statuses
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job, steps]
+                properties:
+                  job: { $ref: '#/components/schemas/ProcessingJob' }
+                  steps: { type: array, items: { $ref: '#/components/schemas/ProcessingStep' } }
+        '404': { $ref: '#/components/responses/Error' }
   /v1/documents/{documentId}/search:
     get:
       summary: Search ready document chunks
@@ -44,7 +77,45 @@ paths:
         - { name: documentId, in: path, required: true, schema: { type: string } }
         - { name: q, in: query, required: true, schema: { type: string } }
       responses:
-        '200': { description: Page-aware retrieved chunks }
+        '200':
+          description: Page-aware retrieved chunks
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Evidence' } }
+        '400': { $ref: '#/components/responses/Error' }
+  /v1/documents/{documentId}/conversations:
+    get:
+      summary: List conversations for a document
+      parameters:
+        - { name: documentId, in: path, required: true, schema: { type: string } }
+        - { name: includeArchived, in: query, required: false, schema: { type: boolean, default: false } }
+      responses:
+        '200':
+          description: Conversations and their messages
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Conversation' } }
+        '404': { $ref: '#/components/responses/Error' }
+    post:
+      summary: Create an empty conversation
+      parameters:
+        - { name: documentId, in: path, required: true, schema: { type: string } }
+      responses:
+        '201':
+          description: Conversation created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Conversation' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { description: Document is not ready }
   /v1/documents/{documentId}/chat:
     post:
       summary: Ask a grounded question about one ready document
@@ -59,17 +130,53 @@ paths:
               required: [question]
               properties:
                 question: { type: string }
+                conversationId: { type: string }
       responses:
-        '200': { description: Grounded answer with validated citations }
+        '200':
+          description: Grounded answer with validated citations
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChatResponse' }
+        '400': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
         '409': { description: Document is not ready }
+        '429': { $ref: '#/components/responses/RateLimited' }
   /v1/documents/{documentId}:
     delete:
       summary: Delete a document and its indexed content
       parameters:
         - { name: documentId, in: path, required: true, schema: { type: string } }
       responses:
-        '200': { description: Document deleted }
-        '404': { description: Document not found }
+        '200':
+          description: Document deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deleted, documentId]
+                properties:
+                  deleted: { type: boolean, const: true }
+                  documentId: { type: string }
+        '404': { $ref: '#/components/responses/Error' }
+  /v1/documents/{documentId}/retry:
+    post:
+      summary: Retry failed document processing
+      parameters:
+        - { name: documentId, in: path, required: true, schema: { type: string } }
+      responses:
+        '202':
+          description: Processing retry queued
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [documentId, jobId, status]
+                properties:
+                  documentId: { type: string }
+                  jobId: { type: string }
+                  status: { type: string, const: queued }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
   /v1/documents/{documentId}/conversations/{conversationId}:
     patch:
       summary: Archive or restore a document chat
@@ -86,5 +193,129 @@ paths:
               properties:
                 archived: { type: boolean }
       responses:
-        '200': { description: Updated chat }
-        '404': { description: Chat not found }
+        '200':
+          description: Updated chat
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Conversation' }
+        '400': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+components:
+  responses:
+    Error:
+      description: Request failed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    RateLimited:
+      description: Too many API requests
+      headers:
+        Retry-After:
+          description: Seconds until the client should retry
+          schema: { type: integer }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/RateLimitError' }
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+    RateLimitError:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          required: [retryAfterSeconds]
+          properties:
+            retryAfterSeconds: { type: integer, minimum: 1 }
+    Document:
+      type: object
+      required: [id, title, source_filename, mime_type, status, created_at]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        source_filename: { type: string }
+        mime_type: { type: string }
+        status: { type: string, enum: [queued, processing, ready, failed] }
+        created_at: { type: string, format: date-time }
+    UploadAccepted:
+      type: object
+      required: [documentId, documentVersionId, jobId, status]
+      properties:
+        documentId: { type: string }
+        documentVersionId: { type: string }
+        jobId: { type: string }
+        status: { type: string, const: queued }
+    ProcessingJob:
+      type: object
+      required: [id, document_version_id, status, current_step, attempts, available_at, updated_at]
+      properties:
+        id: { type: string }
+        document_version_id: { type: string }
+        status: { type: string }
+        current_step: { type: string }
+        attempts: { type: integer }
+        error: { type: [string, 'null'] }
+        available_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    ProcessingStep:
+      type: object
+      required: [job_id, step, status, progress, updated_at]
+      properties:
+        job_id: { type: string }
+        step: { type: string }
+        status: { type: string }
+        progress: { type: number }
+        error: { type: [string, 'null'] }
+        updated_at: { type: string, format: date-time }
+    Evidence:
+      type: object
+      required: [chunkId, pageNo, text]
+      properties:
+        chunkId: { type: string }
+        pageNo: { type: integer, minimum: 1 }
+        text: { type: string }
+    Citation:
+      type: object
+      required: [citationId, documentId, chunkId, pageStart, pageEnd, label]
+      properties:
+        citationId: { type: string }
+        documentId: { type: string }
+        chunkId: { type: string }
+        pageStart: { type: integer, minimum: 1 }
+        pageEnd: { type: integer, minimum: 1 }
+        label: { type: string }
+    ChatResponse:
+      type: object
+      required: [conversationId, text, grounding, citations]
+      properties:
+        conversationId: { type: string }
+        text: { type: string }
+        grounding: { type: string, enum: [supported, not_found] }
+        evidence: { type: array, items: { $ref: '#/components/schemas/Evidence' } }
+        citations: { type: array, items: { $ref: '#/components/schemas/Citation' } }
+        chat: { $ref: '#/components/schemas/Conversation' }
+    Conversation:
+      type: object
+      required: [id, documentId, title, createdAt, updatedAt, messages]
+      properties:
+        id: { type: string }
+        documentId: { type: string }
+        title: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        archivedAt: { type: [string, 'null'], format: date-time }
+        messages:
+          type: array
+          items:
+            type: object
+            required: [id, role, text, citations, createdAt]
+            properties:
+              id: { type: string }
+              role: { type: string, enum: [user, assistant] }
+              text: { type: string }
+              citations: { type: array, items: { $ref: '#/components/schemas/Citation' } }
+              createdAt: { type: string, format: date-time }
